@@ -268,7 +268,7 @@ public class Board {
         return;
     }
     if (si.inSet()) {
-        foundwords.insert(si.toString());
+        foundwords.insertForeignIt(si);
     }
 
     //try to append all adjacent nodes to current prefix
