@@ -1,0 +1,16 @@
+In the current implementation, a Trie (prefix tree) is used to store the
+dictionary.  A generic AVLTree<> and HashTable<> are also implemented, but
+are unused as these are significantly slower.
+
+This whole project makes me wish Java had in-place memory allocation for
+objects (e.g. stack objects, fixed-length arrays stored by value not by
+reference, objects stored by value in general...).  The amount of
+unnecessary malloc calls is absurd.  It makes a) storing the array of
+child nodes in the trie require an extra malloc, b) traversing the
+trie take twice as many pointer dereferences, c) disallows implicit
+copying of iterators, which is a pain and d) makes these iterators live
+on the heap - and that extra malloc means a lot.
+
+I need to make copying the iterators cheap...
+
+
