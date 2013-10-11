@@ -2,7 +2,13 @@ import java.util.Queue;
 import java.util.ArrayDeque;
 import java.text.StringCharacterIterator;
 
-/** A prefix Trie */
+/** A prefix Trie.
+ * Note:  This Trie will only work on strings "[A-Z]*".  Any
+ * other characters will cause failure conditions.
+ *
+ * This Trie is built to be fast, so it has minimal error
+ * checking.  If you send it bad input you'll probably segfault.
+ */
 public class Trie {
     /** Enum to allow checking both the membership of a key k
      * and the existance of any keys prefixed by k */
@@ -28,26 +34,55 @@ public class Trie {
          */
         public boolean reachable() {
             if (curNode == null) return false;
+            return true;
+            //this is semantically more correct than return true,
+            //but I don't know if it's worth the extra work.
+            //Benchmark.
+            /*
             for (Node child : curNode.children) {
                 if (child != null) return true;
             }
             return curNode.value_here;
+            */
         }
+        /** Descend to the next level in the Trie.
+         * @param c The character to append/the path to descend
+         * 
+         * Note:  It is possible to fall off the bottom of the tree
+         * with this method.  If that is the case reachable() will
+         * return false.
+         */
         public void next(char c) {
             if (curNode == null) return;
             curNode = curNode.children[Node.index(c)];
         }
+        /** Construct a SearchIterator.
+         * @param The root of the Trie to search
+         */
         public SearchIterator(Node n) {
             curNode = n;
         }
+        /** Copy a SearchIterator.
+         * @param si The SearchIterator to copy
+         */
         public SearchIterator(SearchIterator si) {
             curNode = si.curNode;
         }
+        /** Get the current node as a String
+         * @return The string representing the string at this node
+         */
         public String toString() {
+            /* Building the string on demand instead of continually updating
+             * it on the iterator yields an overall 4.9% overall improvement
+             */
             StringBuilder sb = new StringBuilder();
             buildString(sb, curNode);
             return sb.toString();
         }
+        /** Recursive helper for toString().
+         * @param sb The string so far (i.e. the prefix)
+         * @param n The current node being visited
+         */
         private static void buildString(StringBuilder sb, Node n) {
             if (n == null) {
                 return;
@@ -59,9 +94,18 @@ public class Trie {
             buildString(sb, n.parent);
             sb.append(c);
         }
+        /** The current character at this node in the Trie.
+         * @return The character
+         */
         public char charHere() {
             return curNode.char_here;
         }
+        /** Ascend this iterator to the parent node.
+         *
+         * It is possible to fall off the top of the trie using this
+         * method (i.e. if the iterator points to the root).  In that
+         * case, reachable() will return false.
+         */
         public void up() {
             if (curNode != null) curNode = curNode.parent;
         }
@@ -75,6 +119,9 @@ public class Trie {
         /** Whether this node represents a string in the Trie */
         public boolean value_here;
         /** The child node array */
+        //TODO:  Might be faster to actually have 26 children in line so
+        //we don't have the extra indirection, at the cost of some code.
+        //need to benchmark for that though.
         public Node[] children;
         /** Create a node with a given character character and parent
          * @param c The character at this node

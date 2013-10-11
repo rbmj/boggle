@@ -1,15 +1,36 @@
 import java.util.Queue;
 import java.util.LinkedList;
 
+/** A generic AVLTree.
+ * @param <T> The type of object to store.  It must implement Comparable&lt;T&gt;
+ * 
+ * Note that you should not attempt to store null values in the tree, as this
+ * breaks the comparison logic and error reporting conventions.
+ */
 public class AVLTree<T extends Comparable<T>> {
+    /** A class to represent a node of the AVL Tree
+     * @param <U> Should be the same as the enclosing T.
+     */
     private static class Node<U extends Comparable<U>> {
-        //a class to propogate errors up the call stack
+        /** A class to propogate errors up the call stack.
+         * @param <V> Should be the same as the enclosing U.
+         *
+         * This class is necessary for the recursive version of insert() as
+         * it needs to pass failure conditions up the call stack (i.e. value already
+         * in set) without interrupting flow.  Basically a Pair&lt;V, boolean&gt;.
+         */
         public static class Error<V> {
+            /** The value of the object. */
             public V value;
+            /** The error flag. */
             public boolean error;
+            /** Construct a new object from a value.
+             * @param V the value to take on
+             */
             public Error(V v) {
                 value = v;
             }
+            /** Set the error flag. */
             void set()  {
                 error = true;
             }
