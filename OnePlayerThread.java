@@ -1,6 +1,6 @@
 import java.util.Queue;
 
-public class OnePlayer {
+public class OnePlayerThread {
     public static void main(String[] args) {
         long time = System.currentTimeMillis();
         Board b;
@@ -17,7 +17,7 @@ public class OnePlayer {
             b = new Board();
         }
         System.out.println(b);
-        Queue<String> q = b.allWords();
+        Queue<String> q = b.getWords();
         for (String s : q) {
             System.out.println(s);
         }

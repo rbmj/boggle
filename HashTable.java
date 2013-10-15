@@ -49,13 +49,13 @@ public class HashTable<T extends Comparable<T>> {
      * @param t The data to insert
      */
     public void insert(T t) {
-        buckets[toi(t.hashCode(), buckets.length)].addFirst(s);
+        buckets[toi(t.hashCode(), buckets.length)].addFirst(t);
     }
     /** Determine if data is in the HashTable.
      * @param t The data to search for
      */
     public boolean find(T t) {
-        return buckets[toi(t.hashCode(), buckets.length)].contains(s);
+        return buckets[toi(t.hashCode(), buckets.length)].contains(t);
     }
     /** Place all of the elements of this HashTable into a queue.
      * @return A queue containing all of the elements in this HashTable.

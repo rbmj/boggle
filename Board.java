@@ -1,6 +1,7 @@
 import java.util.*;
 import java.io.*;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Board {
     private char[][] board;
@@ -141,28 +142,47 @@ public class Board {
         }
         return pts;
     }
-
-    //this is a multithreaded version of allWords().
-    //
-    //benchmarking shows that this is suboptimal, and that a single-threaded
-    //implementation is faster
+    
+    /** A class to represent a position for the work queue */
+    public static class Position {
+        /** The row */
+        public int row;
+        /** The column */
+        public int column;
+        /** Construct a position
+         * @param r Row
+         * @param c Column
+         */
+        public Position(int r, int c) {
+            row = r;
+            column = c;
+        }
+    }
+    
+    /** A multithreaded version of allWords().
+     * The difference between this and allWords() is that this partitions
+     * the set of initial starting indices into several groups, and gives
+     * each thread one of these groups.
+     */
     public Queue<String> getWords() {
         Trie foundwords = new Trie();
-        CountDownLatch latch = new CountDownLatch(2);   //numthreads
+        int numthreads = 4; //should be a good balance and saturate a
+                            //quad-core machine.
+        CountDownLatch latch = new CountDownLatch(numthreads);
+        ConcurrentLinkedQueue<Board.Position> q = 
+                new ConcurrentLinkedQueue<Board.Position>();
 
-        //construct threads - this is one of many partitions 
-        //that can be used...
-
-        WorkThread t1 =
-            new WorkThread(board, englishWords, foundwords, 0, 3, 0, 5,
-                           latch);
-        WorkThread t2 =
-            new WorkThread(board, englishWords, foundwords, 3, 5, 0, 5,
-                           latch);
-
-        //start threads
-        t1.start();
-        t2.start();
+        for (int r = 0; r < 5; ++r) {
+            for (int c = 0; c < 5; ++c) {
+                q.offer(new Position(r, c));
+            }
+        }
+        
+        for (int i = 0; i < numthreads; ++i) {
+            WorkThread t = new WorkThread(board, englishWords, foundwords,
+                                          q, latch);
+            t.start();
+        }
 
         //wait for all threads to finish
         for (boolean done = false; !done;) {
