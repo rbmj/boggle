@@ -19,7 +19,8 @@ public class Trie {
         NOPREFIX
     }
 
-    /** Iterator for searching a Trie */ public static class SearchIterator {
+    /** Iterator for searching a Trie */
+    public static class SearchIterator {
 
         /** The current node being visited */
         private Node curNode;
@@ -37,7 +38,8 @@ public class Trie {
         /** Check reachability of any keys from the current node.
          * @return True if some sequence of keys moves this iterator
          *         to a valid string in the Trie
-         */ public boolean reachable() {
+         */
+        public boolean reachable() {
             if (curNode == null) {
                 return false;
             }
@@ -59,7 +61,8 @@ public class Trie {
          * Note:  It is possible to fall off the bottom of the tree
          * with this method.  If that is the case reachable() will
          * return false.
-         */ public void next(char c) {
+         */ 
+        public void next(char c) {
             if (curNode == null)
                 return;
             curNode = curNode.children[Node.index(c)];
@@ -161,7 +164,8 @@ public class Trie {
          *  array
          *  @param c The character key
          *  @return i The index into the array
-         */ public static int index(char c) {
+         */ 
+        public static int index(char c) {
             return (int) (c - 'A');
         }
 
