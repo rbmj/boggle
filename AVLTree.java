@@ -28,7 +28,7 @@ public class AVLTree<T extends Comparable<T>> {
             /** The error flag. */
             public boolean error;
             /** Construct a new object from a value.
-             * @param V the value to take on
+             * @param v the value to take on
              */
             public Error(V v) {
                 value = v;
