@@ -82,34 +82,12 @@ public class Trie {
             curNode = si.curNode;
         }
 
-        /** Get the current node as a String
-         * @return The string representing the string at this node
+        /** Get the string corresponding to the node pointed to by the
+         * iterator.
+         * @return The string.
          */
         public String toString() {
-            /* Building the string on demand instead of continually updating
-             * it on the iterator yields an overall 4.9% overall improvement
-             */
-            StringBuilder sb = new StringBuilder();
-
-            buildString(sb, curNode);
-            return sb.toString();
-        }
-
-        /** Recursive helper for toString().
-         * @param sb The string so far (i.e. the prefix)
-         * @param n The current node being visited
-         */
-        private static void buildString(StringBuilder sb, Node n) {
-            if (n == null) {
-                return;
-            }
-            char c = n.char_here;
-
-            if (c == 0) {
-                return;         //also done - root node may not have a valid char
-            }
-            buildString(sb, n.parent);
-            sb.append(c);
+            return curNode.toString();
         }
 
         /** The current character at this node in the Trie.
@@ -143,6 +121,13 @@ public class Trie {
 
         /** Whether this node represents a string in the Trie */
         public boolean value_here;
+
+        /** The current node represented as a String, starting at the
+         * root.  This might be null - but it's private.  The fact that
+         * a string isn't stored at every node is encapsulated by calling
+         * toString(), which will generate one if necessary.
+         */
+        private String str;
 
         /** The child node array */
         //TODO:  Might be faster to actually have 26 children in line so
@@ -266,7 +251,9 @@ public class Trie {
      */
     public void insert(String s) {
         StringCharacterIterator sci = new StringCharacterIterator(s);
-        insert(root.get(sci.first()), sci);
+        //insert the string, and while we're at it, since we have the
+        //string, we might as well update the cache.
+        insert(root.get(sci.first()), sci).setCacheString(s);
         ++m_size;
     }
 
