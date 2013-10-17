@@ -126,8 +126,9 @@ public class Trie {
          * case, reachable() will return false.
          */
         public void up() {
-            if (curNode != null)
+            if (curNode != null) {
                 curNode = curNode.parent;
+            }
         }
     }
 
@@ -183,18 +184,58 @@ public class Trie {
             }
             return n;
         }
+        
+        /** Get the string representaiton of this node, starting at the 
+         * root.
+         * @return The string representing the string at this node
+         */
+        public String toString() {
+            if (str != null) {
+                return str; //cached
+            }
+            StringBuilder sb = new StringBuilder();
+            buildString(sb, this);
+            str = sb.toString();
+            return str;
+        }
+
+        /** Recursive helper for toString().
+         * @param sb The string so far (i.e. the prefix)
+         * @param n The current node being visited
+         */
+        private static void buildString(StringBuilder sb, Node n) {
+            if (n == null) {
+                return;
+            }
+            char c = n.char_here;
+
+            if (c == 0) {
+                return;  //also done - root node may not have a valid char
+            }
+            buildString(sb, n.parent);
+            sb.append(c);
+        }
+        
+        /** Set the cached string that corresponds to this node.
+         * Note:  This function does not check if s actually corresponds
+         * to this node.  It trusts you - don't abuse its trust.
+         * @param s The string to set the cached toString value to.
+         */
+        public void setCacheString(String s) {
+            str = s;
+        }
     }
 
     /** The root of the Trie */
     private Node root;
 
     /** The number of elements in this Trie */
-    private int size;
+    private int m_size;
 
     /** Create a Trie */
     public Trie() {
         root = new Node((char) 0, null);
-        size = 0;
+        m_size = 0;
     }
 
     /** Gets a SearchIterator for this Trie.
@@ -205,18 +246,19 @@ public class Trie {
     }
 
     /** Recursive helper for insert(s).
+     * This is basic tree traversal - nothing new here.
      * @param n The current node visited
      * @param sci An iterator to the next char in the string
-     * This is basic tree traversal - nothing new here.
+     * @return The node that was created/updated by this insertion
      */
-    private static void insert(Node n, StringCharacterIterator sci) {
+    private static Node insert(Node n, StringCharacterIterator sci) {
         char c = sci.next();
 
         if (c == sci.DONE) {
             n.value_here = true;
-            return;
+            return n;
         }
-        insert(n.get(c), sci);
+        return insert(n.get(c), sci);
     }
 
     /** Insert a string into the trie.
@@ -225,7 +267,7 @@ public class Trie {
     public void insert(String s) {
         StringCharacterIterator sci = new StringCharacterIterator(s);
         insert(root.get(sci.first()), sci);
-        ++size;
+        ++m_size;
     }
 
     /** Recursive helper for insertForeignIt(it).
@@ -282,7 +324,7 @@ public class Trie {
      */
     public void insertForeignIt(SearchIterator it) {
         insertForeignIt(it, root, (char) 0).value_here = true;
-        ++size;
+        ++m_size;
     }
 
     /** Recursive helper for find(s).
@@ -346,8 +388,7 @@ public class Trie {
      * @return A queue containing all of the elements of this Trie
      */
     public Queue<String> enqueue() {
-        //give us a decent initial size - don't worry about memory
-        Queue<String> q = new ArrayDeque<String> (size);
+        Queue<String> q = new ArrayDeque<String>(m_size);
         enqueue(q);
         return q;
     }
@@ -357,8 +398,15 @@ public class Trie {
      */
     public void enqueue(Queue<String> q) {
         for (int i = 0; i < 26; ++i) {
-            enqueue(root.children[i], Character.toString((char) ('A' + i)),
+            enqueue(root.children[i], Character.toString((char)('A' + i)),
                     q);
         }
+    }
+
+    /** Get the number of elements in this Trie.
+     * @return The number of elements in the Trie.
+     */
+    public int size() {
+        return m_size;
     }
 }
