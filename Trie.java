@@ -84,6 +84,8 @@ public class Trie {
 
         /** Get the string corresponding to the node pointed to by the
          * iterator.
+         * Note:  This may not be all uppercase - see Trie.enqueue(Queue)
+         * for details.
          * @return The string.
          */
         public String toString() {
@@ -257,6 +259,46 @@ public class Trie {
         ++m_size;
     }
 
+    /** Recursive helper for insertCase(s).
+     * This is basic tree traversal - nothing new here.
+     * @param n The current node visited
+     * @param sci An iterator to the next char in the string
+     * @return The node that was created/updated by this insertion
+     */
+    private static Node insertCase(Node n, StringCharacterIterator sci) {
+        char c = sci.next();
+
+        if (c == sci.DONE) {
+            n.value_here = true;
+            return n;
+        }
+        return insertCase(n.get(Character.toUpperCase(c)), sci);
+    }
+
+    /** Insert a string into the trie, converting the string to uppercase.
+     * @param s The string to insert
+     */
+    public void insertCase(String s) {
+        StringCharacterIterator sci = new StringCharacterIterator(s);
+        //insert the string, and while we're at it, since we have the
+        //string, we might as well update the cache.
+        insertCase(root.get(Character.toUpperCase(sci.first())), sci)
+                .setCacheString(s);
+        ++m_size;
+    }
+
+    /** Insert a string into the trie, converting the string to uppercase.
+     * This method does not cache the string internally.  This is useful
+     * if you need SearchIterator.toString() or enqueue() to be strings
+     * in all caps.
+     * @param s The string to insert
+     */
+    public void insertCase_nocache(String s) {
+        StringCharacterIterator sci = new StringCharacterIterator(s);
+        insertCase(root.get(Character.toUpperCase(sci.first())), sci);
+        ++m_size;
+    }
+
     /** Recursive helper for insertForeignIt(it).
      * @param it The iterator into the foreign Trie.
      * @param r The root node of the local Trie.
@@ -372,6 +414,7 @@ public class Trie {
     }
 
     /** Enqueue all of the elements of this Trie.
+     * See enqueue(Queue) for caveats.
      * @return A queue containing all of the elements of this Trie
      */
     public Queue<String> enqueue() {
@@ -381,6 +424,14 @@ public class Trie {
     }
 
     /** Enqueue all of the elements of this Trie into a given queue.
+     * There is no guarantee that the strings will be all caps - even if
+     * they are stored that way internally - iff insertCase() has been
+     * called.  If you require this guarantee, you may:
+     * <ul>
+     *  <li> Use Trie.insertCase_nocache() instead of insertCase() </li>
+     *  <li> Use Trie.insert(s.toUpperCase()) instead of insertCase() </li>
+     *  <li> Use Queue.{peek(), poll()}.toUpperCase() </li>
+     * </ul>
      * @param q The queue to enqueue all of the elements into
      */
     public void enqueue(Queue<String> q) {

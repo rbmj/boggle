@@ -30,7 +30,7 @@ public class Board {
         try {
             Scanner s = new Scanner(new File("american-english"));
             while (s.hasNext()) {
-                englishWords.insert(s.next().toUpperCase());
+                englishWords.insertCase(s.next());
             }
             s.close();
         }
