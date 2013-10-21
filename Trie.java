@@ -110,6 +110,13 @@ public class Trie {
                 curNode = curNode.parent;
             }
         }
+        
+        /** Get the current cached string.  This may be null.
+         * @return The internal cache.
+         */
+        public String getCacheString() {
+            return (curNode != null) ? curNode.str : null;
+        }
     }
 
     /** A low level struct with some helpers for use by Trie. */
@@ -211,6 +218,7 @@ public class Trie {
         public void setCacheString(String s) {
             str = s;
         }
+
     }
 
     /** The root of the Trie */
@@ -352,7 +360,9 @@ public class Trie {
      * @param it An iterator into another Trie.
      */
     public void insertForeignIt(SearchIterator it) {
-        insertForeignIt(it, root, (char) 0).value_here = true;
+        Node n = insertForeignIt(new SearchIterator(it), root, (char) 0);
+        n.value_here = true;
+        n.str = it.getCacheString(); //may be null
         ++m_size;
     }
 
