@@ -406,20 +406,19 @@ public class Trie {
     public boolean get(String s) {
         return find(s) == SearchResult.FOUND;
     }
-
+    
     /** Helper method for enqueue()
      * @param n The current node being visited
-     * @param prefix The prefix associated with the current node
      * @param q The queue to add items to
      */
-    private static void enqueue(Node n, String prefix, Queue<String> q) {
+    private static void enqueue(Node n, Queue<String> q) {
         if (n == null)
             return;
         if (n.value_here) {
-            q.offer(prefix);
+            q.offer(n.toString());
         }
         for (int i = 0; i < 26; ++i) {
-            enqueue(n.children[i], prefix + ((char) ('A' + i)), q);
+            enqueue(n.children[i], q);
         }
     }
 
@@ -441,13 +440,51 @@ public class Trie {
      *  <li> Use Trie.insertCase_nocache() instead of insertCase() </li>
      *  <li> Use Trie.insert(s.toUpperCase()) instead of insertCase() </li>
      *  <li> Use Queue.{peek(), poll()}.toUpperCase() </li>
+     *  <li> Use Trie.enqueue_nocache() instead of enqueue() </li>
      * </ul>
      * @param q The queue to enqueue all of the elements into
      */
     public void enqueue(Queue<String> q) {
         for (int i = 0; i < 26; ++i) {
-            enqueue(root.children[i], Character.toString((char)('A' + i)),
-                    q);
+            enqueue(root.children[i], q);
+        }
+    }
+
+    /** Helper method for enqueue_nocache()
+     * @param n The current node being visited
+     * @param prefix The prefix associated with the current node
+     * @param q The queue to add items to
+     */
+    private static void enqueue_nocache(Node n, String prefix, 
+                                        Queue<String> q) 
+    {
+        if (n == null)
+            return;
+        if (n.value_here) {
+            q.offer(prefix);
+        }
+        for (int i = 0; i < 26; ++i) {
+            enqueue_nocache(n.children[i], prefix + ((char) ('A' + i)), q);
+        }
+    }
+
+    /** Enqueue all of the elements of this Trie, not using the cache.
+     * @return A queue containing all of the elements of this Trie
+     */
+    public Queue<String> enqueue_nocache() {
+        Queue<String> q = new ArrayDeque<String>(m_size);
+        enqueue_nocache(q);
+        return q;
+    }
+
+    /** Enqueue all of the elements of this Trie into a given queue.
+     * This verison does not use the internal string cache.
+     * @param q The queue to enqueue all of the elements into
+     */
+    public void enqueue_nocache(Queue<String> q) {
+        for (int i = 0; i < 26; ++i) {
+            enqueue_nocache(root.children[i], 
+                            Character.toString((char)('A' + i)), q);
         }
     }
 

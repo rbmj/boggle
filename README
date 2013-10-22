@@ -1,9 +1,15 @@
 In the current implementation, a Trie (prefix tree) is used to store the
 dictionary.  A generic AVLTree<> and HashTable<> are also implemented, but
-are unused as these are significantly slower.
+are unused as these are significantly slower.  The greatest win of the
+Trie comes from being able to abandon certain paths early, because we
+can know if there is a string in the Trie with a given prefix.  This
+significantly decreases the average depth to which we have to recurse.
 
 There is a multithreaded version, however this is not used as it has
-been shown to be slower.
+been shown to be slower.  Different methods of insertion are also tried,
+and are slower as well.
+
+Shout out to git bisect for catching bugs.
 
 This whole project makes me wish Java had in-place memory allocation for
 objects (e.g. stack objects, fixed-length arrays stored by value not by
@@ -15,7 +21,7 @@ copying of iterators, which is a pain and d) makes these iterators live
 on the heap - and that extra malloc is *completely unnecessary*
 
 TODO:
- - See if caching strings in the Trie makes things faster...
+ - See if caching strings in the Trie makes things faster... 
     - Try alternate data structures for FoundWords (should require the
       above to be fast)
        - See if alternate structures play more nicely with multithreading,
