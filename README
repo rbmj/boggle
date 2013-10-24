@@ -5,6 +5,9 @@ Trie comes from being able to abandon certain paths early, because we
 can know if there is a string in the Trie with a given prefix.  This
 significantly decreases the average depth to which we have to recurse.
 
+benchmark.sh will benchmark the program, finding the total runtime
+of the program over the set of seeds [0, 100).
+
 There is a multithreaded version, however this is not used as it has
 been shown to be slower.  Different methods of insertion are also tried,
 and are slower as well.
@@ -18,19 +21,30 @@ unnecessary malloc calls is absurd.  It makes a) storing the array of
 child nodes in the trie require an extra malloc, b) traversing the
 trie take twice as many pointer dereferences, c) disallows implicit
 copying of iterators, which is a pain and d) makes these iterators live
-on the heap - and that extra malloc is *completely unnecessary*
+on the heap - and that extra malloc is *completely unnecessary*.  However,
+trying to outsmart java by using a giant switch statement is suboptimal,
+probably due to the set of optimizations being applied by the VM.
+
+And, just for fun, I reimplemented the basic algorithm in C++ just to see
+how the speed would change.  On my first try, without even trying to
+optimize the code for c++ (just a literal translation of the Java code)
+I got a factor of 10 speedup.  In order to build this on a michelson
+machine you need to mix and match compilers due to the fact that they
+use old versions of clang and gcc that support different subsets of C++11.
+cppbuild.sh does this for you.  I'm not going to develop it too much
+further - it was mainly to prove a point and entertain myself during a
+double statics period - but it's there for demonstration purposes.
+
+And, if I do say so, the C++ version is cleaner (except in some small
+corner cases due to laziness, which could be clceaned up) than the java
+code.  It's just a literal translation from Java to C++, but even the
+minor tweaks are nicer...
 
 TODO:
- - See if caching strings in the Trie makes things faster... 
-    - Try alternate data structures for FoundWords (should require the
-      above to be fast)
-       - See if alternate structures play more nicely with multithreading,
-         perhaps due to cheaper insertion...
+ - Try alternate data structures for FoundWords (should require the
+    - See if alternate structures play more nicely with multithreading,
+      perhaps due to cheaper insertion...
  - Determine non-IO bottlenecks
- - Try limiting pointer redirections by statically creating a large number
-   of child Node objects in Trie.Node instead of a Node[] array - though
-   cleaner, the array adds another memory allocation and pointer jump to
-   every node.  Perhaps this will be faster, perhaps it's not worth it.
  - BENCHMARK
  - BENCHMARK
  - BENCHMARK
