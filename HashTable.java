@@ -49,7 +49,10 @@ public class HashTable<T extends Comparable<T>> {
      * @param t The data to insert
      */
     public void insert(T t) {
-        buckets[toi(t.hashCode(), buckets.length)].addFirst(t);
+        LinkedList<T> l = buckets[toi(t.hashCode(), buckets.length)];
+        if (!l.contains(t)) {
+            l.addFirst(t);
+        }
     }
     /** Determine if data is in the HashTable.
      * @param t The data to search for
